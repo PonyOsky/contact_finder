@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
+
 #define MAX_ACCEPTED_ROW_SIZE 101
 #define ZERO {'+'}
 #define TWO {'a', 'A', 'b', 'B', 'c', 'C'}
@@ -16,10 +18,10 @@
 int callError(int errNum){
     switch (errNum){
         case 0:
-            //file not found
+            fprintf(stderr, "Input file not found.\n");
             return 1;
         case 1:
-            //invalid file format
+            fprintf(stderr, "Input file format is invalid.\n");
             return 1;
     }
 }
@@ -125,16 +127,19 @@ int main(int argc, char *argv[]) {
         rewind(stdin);
         while (fgets(fileLine, sizeof(fileLine), stdin)){
             int index = 0;
-            while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < MAX_ACCEPTED_ROW_SIZE - 1){
-                name[index] = fileLine[index];
-                index++;
+            while(fileLine[index] != '\n' && fileLine[index] != '\0'
+                && index < MAX_ACCEPTED_ROW_SIZE - 1){
+                    name[index] = fileLine[index];
+                    index++;
             }
             name[index] = '\0';
             if(fgets(fileLine, sizeof(fileLine), stdin)){
                 int index = 0;
-                while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < MAX_ACCEPTED_ROW_SIZE - 1){
-                    phone[index] = fileLine[index];
-                    index++;
+                while(fileLine[index] != '\n'
+                    && fileLine[index] != '\0'
+                    && index < MAX_ACCEPTED_ROW_SIZE - 1){
+                        phone[index] = fileLine[index];
+                        index++;
                 }
                 phone[index] = '\0';
             }
@@ -158,7 +163,7 @@ int main(int argc, char *argv[]) {
             }
         }
         if(!foundMatch){
-            printf("No matches found!");
+            printf("Not found");
         }
     }else{
         callError(1);
