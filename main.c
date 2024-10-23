@@ -1,11 +1,27 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-void printOutContact(char *name, char *number){
-    printf("%s, %s\n", name, number);
+int callError(int errNum){
+    switch (errNum){
+        case 0:
+            //file not found
+            return 1;
+        case 1:
+            //invalid file format
+            return 1;
+        /*case(errNum == ):
+            //
+            return 1;
+        case(errNum == ):
+            //
+            return 1;*/
+    }
 }
 
 bool isFileInvalid(FILE *file){
+    if(file == NULL){
+        callError(0);
+    }
     char checkLine[101];
     int checkSum;
     while(fgets(checkLine, sizeof(checkLine), stdin)){
@@ -24,87 +40,45 @@ bool isFileInvalid(FILE *file){
     }
 }
 
-int callError(int errNum){
-    switch (errNum){
-        case 0:
-            //file not found
-            return 1;
-        case 1:
-            //invalid file format
-            return 1;
-        /*case(errNum == ):
-            //
-            return 1;
-        case(errNum == ):
-            //
-            return 1;*/
-    }
+void printOutContact(char *name, char *number){
+    printf("%s, %s\n", name, number);
 }
 
 int main(int argc, char *argv[]) {
-    char fileLine[101];
-    char phone[51];
-    char name[51];
-    int matches = 0;
-    switch (argc){
-        case 2:
-            if(!isFileInvalid(stdin)){
+    if(!isFileInvalid(stdin)){
+        int matches = 0;
+        char fileLine[101];
+        char phone[51];
+        char name[51];
+        rewind(stdin);
+        while (fgets(fileLine, sizeof(fileLine), stdin)){
+            int index = 0;
+            while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < sizeof(name) - 1){
+                name[index] = fileLine[index];
+                index++;
+            }
+            name[index] = '\0';
+            if(fgets(fileLine, sizeof(fileLine), stdin)){
+                int index = 0;
+                while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < sizeof(name) - 1){
+                    phone[index] = fileLine[index];
+                    index++;
+                }
+                phone[index] = '\0';
+            }
+            if(argc == 2){
                 char *argument = argv[1];
-                printf("%s\n", argument);
-                rewind(stdin);
-                while (fgets(fileLine, sizeof(fileLine), stdin)){
-                    int index = 0;
-                    while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < sizeof(name) - 1){
-                        name[index] = fileLine[index];
-                        index++;
-                    }
-                    name[index] = '\0';
-                    if(fgets(fileLine, sizeof(fileLine), stdin)){
-                        int index = 0;
-                        while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < sizeof(name) - 1){
-                            phone[index] = fileLine[index];
-                            index++;
-                            //findContactsByArgument(argv[1]);
-                        }
-                        phone[index] = '\0';
-                        printOutContact(name, phone);
-                    }
-                }
+                printOutContact(name, phone);
+                
             }else{
-                callError(1);
+                printOutContact(name, phone);
             }
-            break;
-        case 1:
-            if(!isFileInvalid(stdin)){
-                rewind(stdin);
-                printf("konám case 1\n");
-                while (fgets(fileLine, sizeof(fileLine), stdin)){
-                    int index = 0;
-                    while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < sizeof(name) - 1){
-                        name[index] = fileLine[index];
-                        index++;
-                    }
-                    name[index] = '\0';
-                    if(fgets(fileLine, sizeof(fileLine), stdin)){
-                        int index = 0;
-                        while(fileLine[index] != '\n' && fileLine[index] != '\0' && index < sizeof(name) - 1){
-                            phone[index] = fileLine[index];
-                            index++;
-                            //findContactsByArgument(argv[1]);
-                        }
-                        phone[index] = '\0';
-                        printOutContact(name, phone);
-                    }
-                }
-            }else{
-                callError(1);
-            }
-            break;
-        default:
-            callError(0);
+        }
+        if(matches == 0){
+            printf("No matches found!");
+        }
+    }else{
+        callError(1);
     }
-    if(matches == 0){
-        printf("No matches found!");
-    }    
     return 0;
 }
