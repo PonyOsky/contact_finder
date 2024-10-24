@@ -15,54 +15,62 @@
 #define SHORT_ALT 6
 #define LONG_ALT 8
 
-int callError(int errNum){
+void callError(int errNum){
     switch (errNum){
         case 0:
-            fprintf(stderr, "Input file not found.\n");
-            return 1;
+            fprintf(stderr, "Input has an odd lines, fix it\n");
+            break;
         case 1:
-            fprintf(stderr, "Input file format is invalid.\n");
-            return 1;
-    }
+            fprintf(stderr, "Too much characters on line\n");
+            break;
+        case 2:
+            fprintf(stderr, "Invalid input argument\n");
+            break;
+        }
 }
 
-bool isFileInvalid(FILE *file){
-    if(file == NULL){
-        callError(0);
+bool isValidInput(char *argument) {
+    bool isValid = true;
+    for (int index = 0; argument[index] != '\0'; index++) {
+        if (argument[index] > 57 || argument[index] < 48) {
+            isValid = false;
+            break;
+        }
     }
-    char checkLine[MAX_ACCEPTED_ROW_SIZE];
+    return isValid;
+}
+
+bool isValidLineLenght(char *checkLine){;
     int checkSum;
-    while(fgets(checkLine, sizeof(checkLine), stdin)){
+    bool isValid = true;
+    for(checkSum; checkLine[checkSum] != '\0'; checkSum++){
         if(sizeof(checkLine) > MAX_ACCEPTED_ROW_SIZE){
+            isValid = false;
+            break;
+        }
+    }
+    return isValid;
+}
+/*
+bool findByParameters(char arguments[], char destination[]){
+    printf("spoustim hledani s argumenty: %s destinaci: %s delku argumentu: %d\n", arguments, destination, argLenght);
+    int argLenght = 0;
+    while(argument[argLenght] != '\0' && argument[argLenght] != '\n'){
+        argLenght++;
+    }
+    int index = 0;
+    int lenght = argLenght;
+    char destPiece[lenght];
+    while(destination[index] != '\0' && destination[index] != '\n'){
+        for(int destIndex = 0; destIndex < argLenght; destIndex++){
+            destPiece[destIndex] = destination[destIndex];
+        }
+        printf("substring: %s\n", destPiece);
+        destPiece[argLenght] = '\0';
+        if(destPiece == arguments){
             return true;
         }
-        checkSum++;
-    }
-    if(checkSum % 2 == 0){
-        return false;
-    }else{
-        return true;
-    }
-}
-
-bool isPhoneNumMatched(char *argument, char *phone, int sizeOfArgument){
-    for(int index = 0; index < sizeOfArgument; index++){
-        for(int phoneIndex = 0; phoneIndex < sizeof(phone); phoneIndex++){
-            if(phone[phoneIndex] == argument[index]){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool foundedMatchByName(char *alternatives, char *name){
-    for(int index = 0; index < sizeof(alternatives); index++){
-        for(int nameIndex = 0; nameIndex < sizeof(name); nameIndex++){
-            if(alternatives[index] == name[nameIndex]){
-                return true;
-            }
-        }
+        index++;
     }
     return false;
 }
@@ -112,61 +120,77 @@ bool isNameMatched(char *argument, char *name, int sizeOfArgument){
         }
     }
     return foundMatch;
-}
+}*/
 
 void printOutContact(char *name, char *number){
     printf("%s, %s\n", name, number);
 }
 
-int main(int argc, char *argv[]) {
-    if(!isFileInvalid(stdin)){
-        bool foundMatch = false;
-        char fileLine[MAX_ACCEPTED_ROW_SIZE];
-        char phone[MAX_ACCEPTED_ROW_SIZE];
-        char name[MAX_ACCEPTED_ROW_SIZE];
-        rewind(stdin);
-        while (fgets(fileLine, sizeof(fileLine), stdin)){
-            int index = 0;
-            while(fileLine[index] != '\n' && fileLine[index] != '\0'
-                && index < MAX_ACCEPTED_ROW_SIZE - 1){
-                    name[index] = fileLine[index];
-                    index++;
-            }
-            name[index] = '\0';
-            if(fgets(fileLine, sizeof(fileLine), stdin)){
-                int index = 0;
-                while(fileLine[index] != '\n'
-                    && fileLine[index] != '\0'
-                    && index < MAX_ACCEPTED_ROW_SIZE - 1){
-                        phone[index] = fileLine[index];
-                        index++;
-                }
-                phone[index] = '\0';
-            }
-            if(argc == 2){
-                char *argument = argv[1];
-                int sizeOfArgument = 0;
-                while(argument[sizeOfArgument] != '\0' && argument[sizeOfArgument] != '\n'){
-                    sizeOfArgument++;
-                }
-                if(isPhoneNumMatched(argument, phone, sizeOfArgument)){
-                    printOutContact(name, phone);
-                    foundMatch = true;
-                }
-                /*if(isNameMatched(argument, name, sizeOfArgument)){
-                    printOutContact(name, phone);
-                    foundMatch = true;
-                }*/
-            }else{
-                printOutContact(name, phone);
-                foundMatch = true;
-            }
+void editNewLine(char subject[]){
+    int enterIndex = 0;
+    while (subject[enterIndex] != '\0') {
+        if (subject[enterIndex] == '\r' || subject[enterIndex] == '\n') {
+            break;
         }
-        if(!foundMatch){
-            printf("Not found");
-        }
-    }else{
-        callError(1);
+        enterIndex++;
     }
+    subject[enterIndex] = '\0';
+}
+
+int main(int argc, char *argv[]) {
+    char phone[MAX_ACCEPTED_ROW_SIZE];
+    char name[MAX_ACCEPTED_ROW_SIZE];
+    if(argv[1] == NULL || argc == 1){
+        while(fgets(name, sizeof name, stdin) != NULL){
+            if(fgets(phone, sizeof phone, stdin) == NULL){
+                callError(0);
+                return 1;
+            }
+            if(!isValidLineLenght(phone) && !isValidLineLenght(name)){
+                callError(1);
+                return 1;
+            }
+            editNewLine(name);
+            editNewLine(phone);
+            printOutContact(name, phone);
+        }
+    }
+    char *arguments = argv[1];
+    if(!isValidInput(arguments)){
+        callError(2);            
+        return 1;
+    }
+    while(fgets(name, sizeof name, stdin) != NULL){
+        if(fgets(phone, sizeof phone, stdin) == NULL){
+            callError(0);
+            return 1;
+        }
+        if(!isValidLineLenght(phone) && !isValidLineLenght(name)){
+            callError(1);
+            return 1;
+        }/*
+        if(findByParameters(argument, phone)){
+            printOutContact(name, phone);
+            foundMatch = true;
+        }
+        if(isNameMatched(argument, name, sizeOfArgument)){
+            printOutContact(name, phone);
+            foundMatch = true;
+        }*/
+        editNewLine(name);
+        editNewLine(phone);
+        printOutContact(name, phone);
+    }
+    for(int index = 0; arguments[index] != '\0'; index++){
+        if(arguments[index] < 58 && arguments[index] > 47){
+            callError(2);
+            return 1;
+        }
+    }
+    /*
+    
+    /*if(!foundMatch){
+        printf("Not found");
+    }*/
     return 0;
 }
