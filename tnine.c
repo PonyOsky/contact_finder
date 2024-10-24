@@ -47,8 +47,8 @@ bool isFileInvalid(FILE *file){
 
 bool isPhoneNumMatched(char *argument, char *phone, int sizeOfArgument){
     for(int index = 0; index < sizeOfArgument; index++){
-        for(int phoneIndex = 0; phoneIndex < sizeof(phone); index++){
-            if(phone[index] == argument[index]){
+        for(int phoneIndex = 0; phoneIndex < sizeof(phone); phoneIndex++){
+            if(phone[phoneIndex] == argument[index]){
                 return true;
             }
         }
@@ -153,10 +153,10 @@ int main(int argc, char *argv[]) {
                     printOutContact(name, phone);
                     foundMatch = true;
                 }
-                if(isNameMatched(argument, name, sizeOfArgument)){
+                /*if(isNameMatched(argument, name, sizeOfArgument)){
                     printOutContact(name, phone);
                     foundMatch = true;
-                }
+                }*/
             }else{
                 printOutContact(name, phone);
                 foundMatch = true;
